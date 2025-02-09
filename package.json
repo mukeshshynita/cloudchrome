@@ -15,7 +15,8 @@
     "dev:api": "cd api && npm run dev",
     "dev:ui": "cd ui && npm run dev",
     "serve": "npm run serve:api",
-    "serve:api": "cd api && npm run start"
+    "serve:api": "cd api && npm run start",
+    "start": "cd api && npm run start"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"

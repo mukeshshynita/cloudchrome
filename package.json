@@ -16,7 +16,7 @@
     "dev:ui": "cd ui && npm run dev",
     "serve": "npm run serve:api",
     "serve:api": "cd api && npm run start",
-    "start": "cd api && npm run start"
+    "start": "NODE_ENV=production cd api && npm run start"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"

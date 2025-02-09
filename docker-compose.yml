@@ -5,7 +5,8 @@ services:
       context: ./api
       dockerfile: Dockerfile
       args:
-        NODE_VERSION: 22.13.0
+        NODE_VERSION: 20.11.1
+    container_name: steel-api
     ports:
       - "3000:3000"
       - "9223:9223"
@@ -15,19 +16,20 @@ services:
       - steel-network
 
   ui:
+    container_name: steel-ui
     build:
       context: ./ui
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://api:3000}
-        VITE_WS_URL: ${VITE_WS_URL:-ws://api:3000}
-        VITE_OPENAPI_URL: ${VITE_OPENAPI_URL:-http://api:3000/documentation/json}
+        VITE_API_URL: ${VITE_API_URL}
+        VITE_WS_URL: ${VITE_WS_URL}
+        VITE_OPENAPI_URL: ${VITE_OPENAPI_URL}
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_URL=${VITE_API_URL:-http://api:3000}
-      - VITE_WS_URL=${VITE_WS_URL:-ws://api:3000}
-      - VITE_OPENAPI_URL=${VITE_OPENAPI_URL:-http://api:3000/documentation/json}
+      - VITE_API_URL=${VITE_API_URL}
+      - VITE_WS_URL=${VITE_WS_URL}
+      - VITE_OPENAPI_URL=${VITE_OPENAPI_URL}
     depends_on:
       - api
     networks:

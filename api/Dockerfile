@@ -14,9 +14,8 @@ ENV NODE_ENV="production" \
 LABEL org.opencontainers.image.source="https://github.com/steel-dev/steel-browser"
 
 # Install dependencies
-# Using --mount to speed up build with caching, see https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#run---mount
-RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=cache-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=cache-apt-lib,target=/var/lib/apt,sharing=locked \
     --mount=type=tmpfs,target=/var/log/apt \
     rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache; \
@@ -25,8 +24,8 @@ RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
 
 FROM base AS build
 
-RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=cache-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=cache-apt-lib,target=/var/lib/apt,sharing=locked \
     --mount=type=tmpfs,target=/var/log/apt \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -52,9 +51,8 @@ RUN node ./scripts/patcher.js patch --packagePath /app/node_modules/puppeteer-co
 
 FROM base AS production
 # Install dependencies
-# Using --mount to speed up build with caching, see https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#run---mount
-RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=cache-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=cache-apt-lib,target=/var/lib/apt,sharing=locked \
     --mount=type=tmpfs,target=/var/log/apt \
     apt-get update && \ 
     DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
@@ -75,8 +73,8 @@ RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
       dbus-x11
 
 # Install Chrome and ChromeDriver
-RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=cache-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=cache-apt-lib,target=/var/lib/apt,sharing=locked \
     --mount=type=tmpfs,target=/var/log/apt \
     curl -o chrome.deb https://mirror.cs.uchicago.edu/google-chrome/pool/main/g/google-chrome-stable/google-chrome-stable_128.0.6613.119-1_amd64.deb \
     && apt-get install -y ./chrome.deb \

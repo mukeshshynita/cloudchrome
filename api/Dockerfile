@@ -13,21 +13,14 @@ ENV NODE_ENV="production" \
 
 LABEL org.opencontainers.image.source="https://github.com/steel-dev/steel-browser"
 
-# Install dependencies
-RUN --mount=type=cache,id=cache-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=cache-apt-lib,target=/var/lib/apt,sharing=locked \
-    --mount=type=tmpfs,target=/var/log/apt \
-    rm -f /etc/apt/apt.conf.d/docker-clean; \
-    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache; \
+# Install dependencies without cache mounts
+RUN rm -f /etc/apt/apt.conf.d/docker-clean && \
     apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive apt-get -yq dist-upgrade
 
 FROM base AS build
 
-RUN --mount=type=cache,id=cache-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=cache-apt-lib,target=/var/lib/apt,sharing=locked \
-    --mount=type=tmpfs,target=/var/log/apt \
-    apt-get update && \
+RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
       build-essential \
       pkg-config \
@@ -50,11 +43,9 @@ RUN npm i --include=dev
 RUN node ./scripts/patcher.js patch --packagePath /app/node_modules/puppeteer-core
 
 FROM base AS production
+
 # Install dependencies
-RUN --mount=type=cache,id=cache-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=cache-apt-lib,target=/var/lib/apt,sharing=locked \
-    --mount=type=tmpfs,target=/var/log/apt \
-    apt-get update && \ 
+RUN apt-get update && \ 
     DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
       wget \
       nginx \
@@ -73,10 +64,7 @@ RUN --mount=type=cache,id=cache-apt-cache,target=/var/cache/apt,sharing=locked \
       dbus-x11
 
 # Install Chrome and ChromeDriver
-RUN --mount=type=cache,id=cache-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=cache-apt-lib,target=/var/lib/apt,sharing=locked \
-    --mount=type=tmpfs,target=/var/log/apt \
-    curl -o chrome.deb https://mirror.cs.uchicago.edu/google-chrome/pool/main/g/google-chrome-stable/google-chrome-stable_128.0.6613.119-1_amd64.deb \
+RUN curl -o chrome.deb https://mirror.cs.uchicago.edu/google-chrome/pool/main/g/google-chrome-stable/google-chrome-stable_128.0.6613.119-1_amd64.deb \
     && apt-get install -y ./chrome.deb \
     && rm chrome.deb \
     && mkdir -p /selenium/driver \

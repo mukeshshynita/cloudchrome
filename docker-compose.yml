@@ -9,9 +9,6 @@ services:
     ports:
       - "3000:3000"
       - "9223:9223"
-    volumes:
-      - type: cache
-        target: /app/.cache
     networks:
       - steel-network
 
